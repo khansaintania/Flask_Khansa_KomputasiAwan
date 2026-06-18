@@ -4,51 +4,53 @@ import pandas as pd
 
 app = Flask(__name__)
 
-# Pastikan file model.pkl dan scaler.pkl ada di folder yang sama
+# Memuat model dan scaler (Pastikan file model.pkl hanya berisi 1 objek model)
 with open('model.pkl', 'rb') as f:
-    models = pickle.load(f) # Berisi list model: [Decision Tree, SVC]
+    model = pickle.load(f) 
     
 with open('scaler.pkl', 'rb') as f:
     scaler = pickle.load(f)
 
-model_names = ['Decision Tree', 'SVC']
-
 @app.route('/')
 def index():
-    return render_template('index.html', model_names=model_names)
+    return render_template('index.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():
     if request.method == 'POST':
-        # Mengambil data dari form HTML
-        data = {
-            'Pregnancies': int(request.form['pregnancies']),
-            'Glucose': int(request.form['glucose']),
-            'BloodPressure': int(request.form['blood_pressure']),
-            'SkinThickness': int(request.form['skin_thickness']),
-            'Insulin': int(request.form['insulin']),
-            'BMI': float(request.form['bmi']),
-            'DiabetesPedigreeFunction': float(request.form['diabetes_pedigree_function']),
-            'Age': int(request.form['age'])
-        }
-        
-        # Mengubah data input menjadi DataFrame
-        df = pd.DataFrame(data, index=[0])
-        
-        # Melakukan scaling pada data
-        X_scaled = scaler.transform(df)
-        
-        # Memilih model berdasarkan pilihan dropdown user
-        selected_model_name = request.form['model']
-        model_idx = model_names.index(selected_model_name)
-        clf = models[model_idx]
-        
-        # Melakukan prediksi
-        y_pred = clf.predict(X_scaled)
-        prediction = 'Diabetic' if int(y_pred[0]) == 1 else 'Non-Diabetic'
-        
-        # Mengembalikan hasil ke halaman utama
-        return render_template('index.html', model_names=model_names, prediction=prediction)
+        try:
+            # Mengambil data dari form HTML
+            # Pastikan kunci di sini ('pregnancies', 'glucose', dll)
+            # SAMA PERSIS dengan atribut name di <input> pada index.html
+            data = {
+                'Pregnancies': int(request.form['pregnancies']),
+                'Glucose': int(request.form['glucose']),
+                'BloodPressure': int(request.form['blood_pressure']),
+                'SkinThickness': int(request.form['skin_thickness']),
+                'Insulin': int(request.form['insulin']),
+                'BMI': float(request.form['bmi']),
+                'DiabetesPedigreeFunction': float(request.form['diabetes_pedigree_function']),
+                'Age': int(request.form['age'])
+            }
+            
+            # Mengubah data input menjadi DataFrame
+            df = pd.DataFrame(data, index=[0])
+            
+            # Normalisasi data menggunakan scaler
+            X_scaled = scaler.transform(df)
+            
+            # Melakukan prediksi
+            # Langsung menggunakan model karena sekarang sudah objek tunggal
+            prediction_value = model.predict(X_scaled)[0]
+            
+            # Menerjemahkan output
+            hasil = "Diabetic" if int(prediction_value) == 1 else "Non-Diabetic"
+            
+            return render_template('index.html', prediction=hasil)
+            
+        except Exception as e:
+            return f"Terjadi kesalahan: {str(e)}"
 
 if __name__ == '__main__':
+    # Ubah debug menjadi False saat di server produksi
     app.run(debug=True, host='0.0.0.0')
