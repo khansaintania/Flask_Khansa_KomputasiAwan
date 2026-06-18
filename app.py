@@ -28,7 +28,7 @@ def predict():
             'SkinThickness': int(request.form['skin_thickness']),
             'Insulin': int(request.form['insulin']),
             'BMI': float(request.form['bmi']),
-            'DiabetesPedigreeFunction': float(request.form['dpf']),
+            'DiabetesPedigreeFunction': float(request.form['diabetes_pedigree_function']),
             'Age': int(request.form['age'])
         }
         

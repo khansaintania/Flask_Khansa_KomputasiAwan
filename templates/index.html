@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,119 +7,114 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
             margin: 40px auto;
-            padding: 20px;
-            color: #333;
+            max-width: 800px;
         }
-        h2 {
+        h1 {
+            font-size: 2em;
             margin-bottom: 20px;
         }
-        .result-box {
+        .result {
+            font-size: 1.2em;
             font-weight: bold;
-            font-size: 16px;
             margin-bottom: 20px;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            display: inline-block;
         }
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+        .form-group {
+            margin-bottom: 15px;
         }
-        .full-width {
-            grid-column: span 2;
-        }
-        label {
+        .form-group label {
             display: block;
             margin-bottom: 5px;
-            font-size: 14px;
         }
-        input, select {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 8px;
             box-sizing: border-box;
             border: 1px solid #ccc;
-            border-radius: 4px;
         }
-        .submit-btn {
-            grid-column: span 2;
-            text-align: right;
-            margin-top: 10px;
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
-        button {
-            padding: 8px 24px;
-            background-color: #f8f9fa;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        .model-select {
+            margin-bottom: 20px;
+        }
+        .btn-submit {
+            margin-top: 20px;
+            padding: 8px 20px;
+            float: right;
             cursor: pointer;
-            font-size: 14px;
         }
-        button:hover {
-            background-color: #e2e6ea;
+        /* Clearfix untuk mengatasi float button */
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
         }
     </style>
 </head>
 <body>
-
-    <h2>Diabetes Prediction</h2>
-
+    <h1>Diabetes Prediction</h1>
+    
     {% if prediction %}
-    <div class="result-box">
-        Hasil prediksi: {{ prediction }}
-    </div>
+        <div class="result">
+            Hasil prediksi: {{ prediction }}
+        </div>
     {% endif %}
 
-    <form action="/predict" method="POST">
-        <div class="form-grid">
-            
-            <div class="full-width">
-                <label>Model</label>
-                <select name="model">
-                    <option value="Decision Tree">Decision Tree</option>
-                </select>
-            </div>
-
-            <div>
-                <label>Pregnancies</label>
-                <input type="number" step="any" name="pregnancies" required>
-            </div>
-            <div>
-                <label>Glucose</label>
-                <input type="number" step="any" name="glucose" required>
-            </div>
-
-            <div>
-                <label>BloodPressure</label>
-                <input type="number" step="any" name="blood_pressure" required>
-            </div>
-            <div>
-                <label>SkinThickness</label>
-                <input type="number" step="any" name="skin_thickness" required>
-            </div>
-
-            <div>
-                <label>Insulin</label>
-                <input type="number" step="any" name="insulin" required>
-            </div>
-            <div>
-                <label>BMI</label>
-                <input type="number" step="any" name="bmi" required>
-            </div>
-
-            <div>
-                <label>DiabetesPedigreeFunction</label>
-                <input type="number" step="any" name="dpf" required>
-            </div>
-            <div>
-                <label>Age</label>
-                <input type="number" step="any" name="age" required>
-            </div>
-
-            <div class="submit-btn">
-                <button type="submit">Predict</button>
-            </div>
-            
+    <form action="/predict" method="POST" class="clearfix">
+        <div class="form-group model-select">
+            <label for="model">Model</label>
+            <select name="model" id="model" required>
+                {% for name in model_names %}
+                    <option value="{{ name }}">{{ name }}</option>
+                {% endfor %}
+            </select>
         </div>
-    </form>
 
+        <div class="grid-container">
+            <div class="form-group">
+                <label for="pregnancies">Pregnancies</label>
+                <input type="number" name="pregnancies" id="pregnancies" required>
+            </div>
+            <div class="form-group">
+                <label for="glucose">Glucose</label>
+                <input type="number" name="glucose" id="glucose" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="blood_pressure">BloodPressure</label>
+                <input type="number" name="blood_pressure" id="blood_pressure" required>
+            </div>
+            <div class="form-group">
+                <label for="skin_thickness">SkinThickness</label>
+                <input type="number" name="skin_thickness" id="skin_thickness" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="insulin">Insulin</label>
+                <input type="number" name="insulin" id="insulin" required>
+            </div>
+            <div class="form-group">
+                <label for="bmi">BMI</label>
+                <input type="number" step="any" name="bmi" id="bmi" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="diabetes_pedigree_function">DiabetesPedigreeFunction</label>
+                <input type="number" step="any" name="diabetes_pedigree_function" id="diabetes_pedigree_function" required>
+            </div>
+            <div class="form-group">
+                <label for="age">Age</label>
+                <input type="number" name="age" id="age" required>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-submit">Predict</button>
+    </form>
 </body>
 </html>
