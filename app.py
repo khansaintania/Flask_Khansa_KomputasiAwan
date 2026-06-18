@@ -4,24 +4,26 @@ import pandas as pd
 
 app = Flask(__name__)
 
-# Memuat model dan scaler (Pastikan file model.pkl hanya berisi 1 objek model)
+# Memuat model dan scaler (Berisi list 2 model dari proses training)
 with open('model.pkl', 'rb') as f:
-    model = pickle.load(f) 
-    
+    models = pickle.load(f)
+
 with open('scaler.pkl', 'rb') as f:
     scaler = pickle.load(f)
 
+# Definisikan nama model untuk ditampilkan di dropdown HTML
+model_names = ['Decision Tree', 'SVC']
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # Kirim variabel model_names ke index.html agar dropdown terisi
+    return render_template('index.html', model_names=model_names)
 
 @app.route('/predict', methods=['POST'])
 def predict():
     if request.method == 'POST':
         try:
             # Mengambil data dari form HTML
-            # Pastikan kunci di sini ('pregnancies', 'glucose', dll)
-            # SAMA PERSIS dengan atribut name di <input> pada index.html
             data = {
                 'Pregnancies': int(request.form['pregnancies']),
                 'Glucose': int(request.form['glucose']),
@@ -32,22 +34,27 @@ def predict():
                 'DiabetesPedigreeFunction': float(request.form['diabetes_pedigree_function']),
                 'Age': int(request.form['age'])
             }
-            
+
             # Mengubah data input menjadi DataFrame
             df = pd.DataFrame(data, index=[0])
-            
+
             # Normalisasi data menggunakan scaler
             X_scaled = scaler.transform(df)
-            
-            # Melakukan prediksi
-            # Langsung menggunakan model karena sekarang sudah objek tunggal
-            prediction_value = model.predict(X_scaled)[0]
-            
+
+            # Mengambil model pilihan user dari dropdown HTML
+            selected_model_name = request.form['model']
+            model_idx = model_names.index(selected_model_name)
+            clf = models[model_idx]
+
+            # Melakukan prediksi menggunakan model yang dipilih
+            prediction_value = clf.predict(X_scaled)[0]
+
             # Menerjemahkan output
             hasil = "Diabetic" if int(prediction_value) == 1 else "Non-Diabetic"
-            
-            return render_template('index.html', prediction=hasil)
-            
+
+            # Mengembalikan hasil dan jangan lupa kirim ulang model_names-nya
+            return render_template('index.html', model_names=model_names, prediction=hasil)
+
         except Exception as e:
             return f"Terjadi kesalahan: {str(e)}"
 
