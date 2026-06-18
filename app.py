@@ -46,7 +46,7 @@ def predict():
             scaled_data = scaler.transform(df)
 
             # Melakukan prediksi menggunakan model Decision Tree
-            prediction = model.predict(scaled_data)
+            prediction = model[0].predict(scaled_data)
 
             # Menerjemahkan output numerik menjadi teks
             if prediction[0] == 1:
